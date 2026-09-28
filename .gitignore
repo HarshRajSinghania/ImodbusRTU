@@ -5,3 +5,4 @@
 /ignore/
 /data/
 .opencode/
+.ruff_cache
