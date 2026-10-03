@@ -1,4 +1,5 @@
 import logging
+import sqlite3
 
 import click
 import serial
@@ -379,6 +380,11 @@ def monitor_run(
     database_path,
 ):
     """Monitorea registros y guarda la corrida en SQLite."""
+    if minutes <= 0:
+        raise click.BadParameter("minutes debe ser mayor que cero.")
+    if sample_every_seconds <= 0:
+        raise click.BadParameter("sample-every-seconds debe ser mayor que cero.")
+
     register_list = parse_registers(registers)
     port, baud, timeout = resolve_serial(port, baud, timeout, config_path, profile)
 
@@ -440,12 +446,15 @@ def list_runs(database_path):
 )
 def compare_runs(database_path, left_table, right_table, output_path):
     """Compara dos tablas SQLite y genera un dashboard HTML."""
-    dashboard = compare_sqlite_tables(
-        database_path=database_path,
-        left_table=left_table,
-        right_table=right_table,
-        output_path=output_path,
-    )
+    try:
+        dashboard = compare_sqlite_tables(
+            database_path=database_path,
+            left_table=left_table,
+            right_table=right_table,
+            output_path=output_path,
+        )
+    except (ValueError, sqlite3.Error) as error:
+        raise click.ClickException(str(error)) from error
 
     click.echo(f"Dashboard generado en {dashboard.output_path}")
     click.echo("")
@@ -489,9 +498,11 @@ def compare_runs(database_path, left_table, right_table, output_path):
 )
 def variability_report(database_path, air_run, soil_run, top_n, output, show_all):
     """Calcula estadisticas por registro entre una corrida en aire y una en tierra."""
-    air_df, soil_df = load_state_pair(database_path, air_run, soil_run)
-
-    report = build_variability_report(air_df, soil_df)
+    try:
+        air_df, soil_df = load_state_pair(database_path, air_run, soil_run)
+        report = build_variability_report(air_df, soil_df)
+    except (ValueError, sqlite3.Error) as error:
+        raise click.ClickException(str(error)) from error
 
     click.echo(render_variability_report(report, top_n=top_n, show_all=show_all))
 
