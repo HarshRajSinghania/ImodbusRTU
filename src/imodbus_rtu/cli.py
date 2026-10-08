@@ -153,7 +153,7 @@ def render_progress_bar(current: int, total: int, prefix: str = "", width: int =
         shown = current
     filled = min(int(width * ratio), width)
     bar = "█" * filled + "░" * (width - filled)
-    click.echo(f"\r{prefix}{prefix}[{bar}] {shown}/{total} ({ratio * 100:.0f}%)", nl=False)
+    click.echo(f"\r{prefix}[{bar}] {shown}/{total} ({ratio * 100:.0f}%)", nl=False)
     if total > 0 and current >= total:
         click.echo()
 
