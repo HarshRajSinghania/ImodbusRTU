@@ -194,7 +194,7 @@ def analyze_registers(
     def on_progress(done: int, total: int):
         render_progress_bar(completed + done, total_registers, prefix="Progreso: ")
 
-        for slave_id in slave_ids:
+    for slave_id in slave_ids:
         if show_progress:
             click.echo(
                 f"\n[Esclavo {slave_id}] Escaneando registros {register_start}-{register_end}..."
